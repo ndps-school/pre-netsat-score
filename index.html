@@ -49,17 +49,17 @@
 </head>
 <body class="text-gray-700">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-6xl">
         
         <!-- Header Section -->
         <header class="text-center mb-8">
             <div class="flex justify-center items-center space-x-4 mb-4">
-                <img src="https://i.postimg.cc/fbhJ98Xj/2.png" alt="SEM Logo" class="h-20 md:h-24 w-auto" onerror="this.onerror=null;this.src='https://placehold.co/150x150/f3e8ff/8b5cf6?text=SEM';">
-                <img src="https://i.postimg.cc/NfSygsjn/1.png" alt="NPS Logo" class="h-20 md:h-24 w-auto" onerror="this.onerror=null;this.src='https://placehold.co/150x150/f3e8ff/8b5cf6?text=NPS';">
+                <img src="https://i.postimg.cc/fbhJ98Xj/2.png" alt="SEM Logo" class="h-16 sm:h-20 md:h-24 w-auto" onerror="this.onerror=null;this.src='https://placehold.co/150x150/f3e8ff/8b5cf6?text=SEM';">
+                <img src="https://i.postimg.cc/NfSygsjn/1.png" alt="NPS Logo" class="h-16 sm:h-20 md:h-24 w-auto" onerror="this.onerror=null;this.src='https://placehold.co/150x150/f3e8ff/8b5cf6?text=NPS';">
             </div>
-            <h1 class="text-2xl md:text-3xl font-semibold text-purple-700">ระบบตรวจสอบคะแนนสอบ Pre NETSAT</h1>
-            <p class="text-sm md:text-base text-gray-600 mt-2">โครงการห้องเรียนพิเศษ วิทยาศาสตร์ ภาษาอังกฤษ และคณิตศาสตร์ : SEM</p>
-            <p class="text-sm md:text-base text-gray-500">โรงเรียนนาดูนประชาสรรพ์ จังหวัดมหาสารคาม</p>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-purple-700">ระบบตรวจสอบคะแนนสอบ Pre NETSAT</h1>
+            <p class="text-sm sm:text-base text-gray-600 mt-2">โครงการห้องเรียนพิเศษ วิทยาศาสตร์ ภาษาอังกฤษ และคณิตศาสตร์ : SEM</p>
+            <p class="text-sm sm:text-base text-gray-500">โรงเรียนนาดูนประชาสรรพ์ จังหวัดมหาสารคาม</p>
         </header>
 
         <main>
@@ -105,13 +105,14 @@
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 uppercase bg-purple-50">
                                 <tr>
-                                    <th scope="col" class="px-4 py-3 rounded-l-lg">รายวิชา</th>
-                                    <th scope="col" class="px-4 py-3 text-center">คะแนนเต็ม</th>
-                                    <th scope="col" class="px-4 py-3 text-center">คะแนนที่ได้</th>
-                                    <th scope="col" class="px-4 py-3 text-center">ค่าเฉลี่ย</th>
-                                    <th scope="col" class="px-4 py-3 text-center">สูงสุด</th>
-                                    <th scope="col" class="px-4 py-3 text-center">ต่ำสุด</th>
-                                    <th scope="col" class="px-4 py-3 text-center rounded-r-lg">เปรียบเทียบ</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 rounded-l-lg">รายวิชา</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center">คะแนนเต็ม</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center">คะแนนที่ได้</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center">ลำดับที่</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center">ค่าเฉลี่ย</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center">สูงสุด</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center">ต่ำสุด</th>
+                                    <th scope="col" class="px-2 py-3 md:px-4 text-center rounded-r-lg">เปรียบเทียบ</th>
                                 </tr>
                             </thead>
                             <tbody id="score-table-body"></tbody>
@@ -327,16 +328,19 @@
                 const validScores = rows
                     .map(row => (row.c && row.c[colIndex]) ? row.c[colIndex].v : null)
                     .filter(score => typeof score === 'number');
+                
+                const sortedScores = [...validScores].sort((a, b) => b - a);
 
                 if (validScores.length > 0) {
                     const sum = validScores.reduce((acc, score) => acc + score, 0);
                     statistics[colIndex] = {
                         avg: (sum / validScores.length).toFixed(2),
                         min: Math.min(...validScores),
-                        max: Math.max(...validScores)
+                        max: Math.max(...validScores),
+                        sortedScores: sortedScores
                     };
                 } else {
-                    statistics[colIndex] = { avg: 'N/A', min: 'N/A', max: 'N/A' };
+                    statistics[colIndex] = { avg: 'N/A', min: 'N/A', max: 'N/A', sortedScores: [] };
                 }
             }
             return statistics;
@@ -352,9 +356,9 @@
             
             studentInfoDiv.innerHTML = `
                 <div class="flex-grow">
-                    <h2 class="text-2xl font-semibold text-purple-800">${prefix}${firstName} ${lastName}</h2>
-                    <p class="text-gray-600">ผลการสอบ Pre NETSAT</p>
-                    <p class="text-sm text-gray-500 mt-1">เข้าดูผลแล้ว: <span id="login-count">...</span> ครั้ง</p>
+                    <h2 class="text-xl md:text-2xl font-semibold text-purple-800">${prefix}${firstName} ${lastName}</h2>
+                    <p class="text-sm md:text-base text-gray-600">ผลการสอบ Pre NETSAT</p>
+                    <p class="text-xs md:text-sm text-gray-500 mt-1">เข้าดูผลแล้ว: <span id="login-count">...</span> ครั้ง</p>
                 </div>
                 <div class="mt-4 md:mt-0">
                     <button onclick="openChangePasswordPopup()" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
@@ -373,12 +377,36 @@
                 const stats = statistics[colIndex];
                 
                 const studentScoreCell = data[colIndex];
-                const studentScore = (studentScoreCell && studentScoreCell.v !== null) ? studentScoreCell.v : 'ยังไม่จัดสอบ';
-                const studentScoreDisplay = (typeof studentScore === 'number') ? `<span class="text-base font-bold text-purple-700">${studentScore}</span>` : `<span class="text-gray-500">${studentScore}</span>`;
+                let studentScoreValue;
+                
+                if (studentScoreCell === null || studentScoreCell.v === null || String(studentScoreCell.v).trim() === '') {
+                    studentScoreValue = 'ยังไม่จัดสอบ';
+                } else if (isNaN(Number(studentScoreCell.v))) {
+                    studentScoreValue = 'ขาดสอบ';
+                } else {
+                    studentScoreValue = Number(studentScoreCell.v);
+                }
+                
+                let studentScoreDisplay;
+                if (typeof studentScoreValue === 'number') {
+                    studentScoreDisplay = `<span class="text-base font-bold text-purple-700">${studentScoreValue}</span>`;
+                } else if (studentScoreValue === 'ขาดสอบ') {
+                    studentScoreDisplay = `<span class="text-red-600">${studentScoreValue}</span>`;
+                } else { // Catches "ยังไม่จัดสอบ"
+                    studentScoreDisplay = `<span class="text-gray-500">${studentScoreValue}</span>`;
+                }
+                
+                let rank = '-';
+                if (typeof studentScoreValue === 'number') {
+                    const rankIndex = stats.sortedScores.indexOf(studentScoreValue);
+                    if (rankIndex !== -1) {
+                        rank = `${rankIndex + 1} / ${stats.sortedScores.length}`;
+                    }
+                }
 
                 let comparisonText = '-';
-                if (typeof studentScore === 'number' && stats.avg !== 'N/A') {
-                    const diff = studentScore - stats.avg;
+                if (typeof studentScoreValue === 'number' && stats.avg !== 'N/A') {
+                    const diff = studentScoreValue - stats.avg;
                     if (diff > 0) {
                         comparisonText = `<span class="text-green-600 font-medium">▲ ${diff.toFixed(2)}</span>`;
                     } else if (diff < 0) {
@@ -390,13 +418,14 @@
 
                 const row = `
                     <tr class="border-b hover:bg-purple-50">
-                        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">${subject.name}</th>
-                        <td class="px-4 py-3 text-center">100</td>
-                        <td class="px-4 py-3 text-center">${studentScoreDisplay}</td>
-                        <td class="px-4 py-3 text-center">${stats.avg}</td>
-                        <td class="px-4 py-3 text-center text-green-600">${stats.max}</td>
-                        <td class="px-4 py-3 text-center text-red-600">${stats.min}</td>
-                        <td class="px-4 py-3 text-center">${comparisonText}</td>
+                        <th scope="row" class="px-2 py-3 md:px-4 font-medium text-gray-900 whitespace-nowrap">${subject.name}</th>
+                        <td class="px-2 py-3 md:px-4 text-center">100</td>
+                        <td class="px-2 py-3 md:px-4 text-center">${studentScoreDisplay}</td>
+                        <td class="px-2 py-3 md:px-4 text-center font-medium">${rank}</td>
+                        <td class="px-2 py-3 md:px-4 text-center">${stats.avg}</td>
+                        <td class="px-2 py-3 md:px-4 text-center text-green-600">${stats.max}</td>
+                        <td class="px-2 py-3 md:px-4 text-center text-red-600">${stats.min}</td>
+                        <td class="px-2 py-3 md:px-4 text-center">${comparisonText}</td>
                     </tr>
                 `;
                 scoreTableBody.innerHTML += row;

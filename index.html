@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบตรวจสอบคะแนนสอบ Pre NETSAT</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* กำหนด font และ background ไล่โทนสี */
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(to bottom, #f3e8ff, #ffffff);
+            min-height: 100vh;
+        }
+        /* Custom styles for a softer look */
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-primary {
+            background-color: #8b5cf6; /* A nice shade of purple */
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #7c3aed;
+        }
+        /* Custom styling for SweetAlert2 inputs */
+        .swal2-input.w-full {
+            width: 95%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body class="text-gray-700">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-8">
+            <div class="flex justify-center items-center space-x-4 mb-4">
+                <img src="https://i.postimg.cc/fbhJ98Xj/2.png" alt="SEM Logo" class="h-20 md:h-24 w-auto" onerror="this.onerror=null;this.src='https://placehold.co/150x150/f3e8ff/8b5cf6?text=SEM';">
+                <img src="https://i.postimg.cc/NfSygsjn/1.png" alt="NPS Logo" class="h-20 md:h-24 w-auto" onerror="this.onerror=null;this.src='https://placehold.co/150x150/f3e8ff/8b5cf6?text=NPS';">
+            </div>
+            <h1 class="text-2xl md:text-3xl font-semibold text-purple-700">ระบบตรวจสอบคะแนนสอบ Pre NETSAT</h1>
+            <p class="text-sm md:text-base text-gray-600 mt-2">โครงการห้องเรียนพิเศษ วิทยาศาสตร์ ภาษาอังกฤษ และคณิตศาสตร์ : SEM</p>
+            <p class="text-sm md:text-base text-gray-500">โรงเรียนนาดูนประชาสรรพ์ จังหวัดมหาสารคาม</p>
+        </header>
+
+        <main>
+            <!-- Login Section -->
+            <section id="login-section" class="card rounded-2xl shadow-lg p-6 md:p-8 max-w-md mx-auto">
+                <form id="login-form">
+                    <div class="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <h2 class="text-xl font-medium text-gray-800">เข้าสู่ระบบ</h2>
+                    </div>
+                    <p class="text-gray-500 mb-6">กรุณากรอกเลขประจำตัวและรหัสผ่านเพื่อดูผลคะแนน</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="student-id" class="block mb-2 text-sm font-medium text-gray-600">เลขประจำตัวนักเรียน</label>
+                            <input type="text" id="student-id" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition" placeholder="เช่น 12345" required maxlength="5" pattern="\d{5}">
+                        </div>
+                        <div>
+                            <label for="password" class="block mb-2 text-sm font-medium text-gray-600">รหัสผ่าน</label>
+                            <input type="password" id="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition" placeholder="รหัสผ่านเริ่มต้นคือเลขประจำตัว" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg mt-6 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        ตรวจสอบคะแนน
+                    </button>
+                </form>
+            </section>
+
+            <!-- Result Section (Hidden by default) -->
+            <section id="result-section" class="hidden space-y-8">
+                <div id="student-info" class="card rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                    <!-- Student name and login count will be injected here -->
+                </div>
+
+                <!-- Score Table Section -->
+                <div class="card rounded-2xl shadow-lg p-4 md:p-6">
+                    <h3 class="text-lg font-semibold text-center text-gray-800 mb-4">ตารางสรุปผลคะแนน</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-purple-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 rounded-l-lg">รายวิชา</th>
+                                    <th scope="col" class="px-4 py-3 text-center">คะแนนเต็ม</th>
+                                    <th scope="col" class="px-4 py-3 text-center">คะแนนที่ได้</th>
+                                    <th scope="col" class="px-4 py-3 text-center">ค่าเฉลี่ย</th>
+                                    <th scope="col" class="px-4 py-3 text-center">สูงสุด</th>
+                                    <th scope="col" class="px-4 py-3 text-center">ต่ำสุด</th>
+                                    <th scope="col" class="px-4 py-3 text-center rounded-r-lg">เปรียบเทียบ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="score-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="card rounded-2xl shadow-lg p-4 md:p-6">
+                    <h3 class="text-lg font-semibold text-center text-gray-800 mb-4">กราฟเปรียบเทียบคะแนน</h3>
+                    <div class="h-64 md:h-80">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                </div>
+
+                 <div class="text-center pt-4">
+                    <button onclick="logout()" class="btn-primary text-white font-bold py-2 px-6 rounded-lg">
+                        ออกจากระบบ
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-500 mt-12 py-4 border-t border-gray-200">
+            <p>&copy; 2025 โครงการห้องเรียนพิเศษ วิทยาศาสตร์ ภาษาอังกฤษและคณิตศาสตร์ : SEM โรงเรียนนาดูนประชาสรรพ์</p>
+            <p class="mt-1">พัฒนาระบบโดย : ครูชัยวัฒน์ สุบัติคำ ครู คศ.3 กลุ่มสาระการเรียนรู้คณิตศาสตร์</p>
+        </footer>
+
+    </div>
+
+    <!-- Visitor Counter -->
+    <div class="fixed bottom-4 right-4 bg-white bg-opacity-70 backdrop-blur-sm shadow-md rounded-full px-4 py-2 text-sm text-gray-600 flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+        </svg>
+        <span>ผู้เข้าชม: <span id="visitor-count">...</span></span>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const SHEET_ID = '1ul95sgmZwET-bMkjDELbYlF5nvcBC9CERLEqQ2uj5mY';
+        const SHEET_NAME = 'score';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDRsW5azHK5L5nCn2kSOEO64rXySgsyaysEro5tLgJtZ8ZsgI9J8j3q6eJMLyDwIZBIg/exec';
+        
+        // --- ELEMENTS ---
+        const loginForm = document.getElementById('login-form');
+        const loginSection = document.getElementById('login-section');
+        const resultSection = document.getElementById('result-section');
+        const studentIdInput = document.getElementById('student-id');
+        const passwordInput = document.getElementById('password');
+        const studentInfoDiv = document.getElementById('student-info');
+        const scoreTableBody = document.getElementById('score-table-body');
+        const visitorCountSpan = document.getElementById('visitor-count');
+        const chartCanvas = document.getElementById('scoreChart');
+        let scoreChartInstance = null;
+        let currentStudentId = null; 
+
+        // --- DATA MAPPING ---
+        const NAME_PREFIX_COL = 1; // Col B
+        const FIRST_NAME_COL = 2;  // Col C
+        const LAST_NAME_COL = 3;   // Col D
+        const scoreMapping = {
+            4: { name: 'คณิตศาสตร์' },               // Col E
+            5: { name: 'ภาษาอังกฤษ' },              // Col F
+            6: { name: 'ภาษาไทย' },                 // Col G
+            7: { name: 'ฟิสิกส์' },                  // Col H
+            8: { name: 'เคมี' },                     // Col I
+            9: { name: 'ชีววิทยา' },                 // Col J
+            10: { name: 'วิทยาศาสตร์และเทคโนโลยี' } // Col K
+        };
+        const PASSWORD_COLUMN_INDEX = 11; // Col L
+        const LOGIN_COUNT_COLUMN_INDEX = 12; // Col M
+
+        // --- GLOBAL CHART DEFAULTS ---
+        Chart.defaults.font.family = "'Prompt', sans-serif";
+
+        // --- EVENT LISTENERS ---
+        loginForm.addEventListener('submit', handleLogin);
+        
+        // --- FUNCTIONS ---
+        async function handleLogin(e) {
+            e.preventDefault();
+            const studentId = studentIdInput.value;
+            const password = passwordInput.value;
+
+            if (!studentId || !/^\d{5}$/.test(studentId) || !password) {
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกเลขประจำตัวและรหัสผ่าน', confirmButtonColor: '#8b5cf6' });
+                return;
+            }
+
+            Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', text: 'กรุณารอสักครู่', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const sheetData = await fetchSheetData();
+                const studentRow = findStudent(sheetData.rows, studentId);
+
+                if (studentRow) {
+                    const storedPassword = (studentRow[PASSWORD_COLUMN_INDEX] && studentRow[PASSWORD_COLUMN_INDEX].v) ? studentRow[PASSWORD_COLUMN_INDEX].v.toString() : studentId;
+
+                    if (password === storedPassword) {
+                        currentStudentId = studentId; 
+                        const statistics = processAllScores(sheetData.rows);
+                        displayResults(studentRow, statistics);
+                        logAccess(studentId); // This will now also update the login count display via its callback
+                        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ!', showConfirmButton: false, timer: 1500 });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'ข้อมูลไม่ถูกต้อง', text: 'เลขประจำตัวหรือรหัสผ่านไม่ถูกต้อง', confirmButtonColor: '#8b5cf6' });
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล', text: 'ไม่พบเลขประจำตัวนี้ในฐานข้อมูล', confirmButtonColor: '#8b5cf6' });
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้', confirmButtonColor: '#8b5cf6' });
+            }
+        }
+
+        function openChangePasswordPopup() {
+            Swal.fire({
+                title: 'จัดการรหัสผ่าน',
+                html: `
+                    <div class="space-y-4 text-left p-4">
+                        <div>
+                            <label for="swal-current-password" class="block mb-2 text-sm font-medium text-gray-600">รหัสผ่านปัจจุบัน</label>
+                            <input type="password" id="swal-current-password" class="swal2-input w-full" placeholder="รหัสผ่านปัจจุบัน">
+                        </div>
+                        <div>
+                            <label for="swal-new-password" class="block mb-2 text-sm font-medium text-gray-600">รหัสผ่านใหม่</label>
+                            <input type="password" id="swal-new-password" class="swal2-input w-full" placeholder="รหัสผ่านใหม่">
+                        </div>
+                        <div>
+                            <label for="swal-confirm-password" class="block mb-2 text-sm font-medium text-gray-600">ยืนยันรหัสผ่านใหม่</label>
+                            <input type="password" id="swal-confirm-password" class="swal2-input w-full" placeholder="ยืนยันรหัสผ่านใหม่">
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'บันทึกการเปลี่ยนแปลง',
+                confirmButtonColor: '#8b5cf6',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const currentPassword = document.getElementById('swal-current-password').value;
+                    const newPassword = document.getElementById('swal-new-password').value;
+                    const confirmPassword = document.getElementById('swal-confirm-password').value;
+
+                    if (!currentPassword || !newPassword || !confirmPassword) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+                        return false;
+                    }
+                    if (newPassword !== confirmPassword) {
+                        Swal.showValidationMessage('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
+                        return false;
+                    }
+                    return { currentPassword, newPassword };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { currentPassword, newPassword } = result.value;
+                    
+                    Swal.fire({ title: 'กำลังเปลี่ยนรหัสผ่าน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                    const script = document.createElement('script');
+                    const params = new URLSearchParams({
+                        callback: 'handleChangePasswordResponse',
+                        action: 'changePassword',
+                        studentId: currentStudentId,
+                        currentPassword: currentPassword,
+                        newPassword: newPassword
+                    });
+                    script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
+                    document.head.appendChild(script);
+                    script.onload = () => document.head.removeChild(script);
+                    script.onerror = () => {
+                        document.head.removeChild(script);
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', confirmButtonColor: '#8b5cf6' });
+                    };
+                }
+            });
+        }
+        
+        function handleChangePasswordResponse(response) {
+            if (response.status === 'success') {
+                Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ!', text: 'ครั้งถัดไป กรุณาใช้รหัสผ่านใหม่ในการเข้าสู่ระบบ', confirmButtonColor: '#8b5cf6' });
+            } else {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: response.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้', confirmButtonColor: '#8b5cf6' });
+            }
+        }
+
+        async function fetchSheetData() {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const text = await response.text();
+            try {
+                const json = JSON.parse(text.substring(47).slice(0, -2));
+                return json.table;
+            } catch (e) {
+                console.error("Failed to parse Google Sheet data:", e);
+                throw new Error("Invalid data format from Google Sheets.");
+            }
+        }
+
+        function findStudent(rows, studentId) {
+            if (!rows) return null;
+            const row = rows.find(r => r.c && r.c[0] && r.c[0].v == studentId);
+            return row ? row.c : null;
+        }
+
+        function processAllScores(rows) {
+            const statistics = {};
+            for (const colIndex in scoreMapping) {
+                const validScores = rows
+                    .map(row => (row.c && row.c[colIndex]) ? row.c[colIndex].v : null)
+                    .filter(score => typeof score === 'number');
+
+                if (validScores.length > 0) {
+                    const sum = validScores.reduce((acc, score) => acc + score, 0);
+                    statistics[colIndex] = {
+                        avg: (sum / validScores.length).toFixed(2),
+                        min: Math.min(...validScores),
+                        max: Math.max(...validScores)
+                    };
+                } else {
+                    statistics[colIndex] = { avg: 'N/A', min: 'N/A', max: 'N/A' };
+                }
+            }
+            return statistics;
+        }
+
+        function displayResults(data, statistics) {
+            loginSection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+
+            const prefix = data[NAME_PREFIX_COL] ? data[NAME_PREFIX_COL].v : '';
+            const firstName = data[FIRST_NAME_COL] ? data[FIRST_NAME_COL].v : '';
+            const lastName = data[LAST_NAME_COL] ? data[LAST_NAME_COL].v : '';
+            
+            studentInfoDiv.innerHTML = `
+                <div class="flex-grow">
+                    <h2 class="text-2xl font-semibold text-purple-800">${prefix}${firstName} ${lastName}</h2>
+                    <p class="text-gray-600">ผลการสอบ Pre NETSAT</p>
+                    <p class="text-sm text-gray-500 mt-1">เข้าดูผลแล้ว: <span id="login-count">...</span> ครั้ง</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <button onclick="openChangePasswordPopup()" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H5v-2H3v-2H1v-4a6 6 0 016-6h4a6 6 0 016 6z" />
+                        </svg>
+                        จัดการรหัสผ่าน
+                    </button>
+                </div>
+            `;
+
+            scoreTableBody.innerHTML = ''; 
+
+            for (const colIndex in scoreMapping) {
+                const subject = scoreMapping[colIndex];
+                const stats = statistics[colIndex];
+                
+                const studentScoreCell = data[colIndex];
+                const studentScore = (studentScoreCell && studentScoreCell.v !== null) ? studentScoreCell.v : 'ยังไม่จัดสอบ';
+                const studentScoreDisplay = (typeof studentScore === 'number') ? `<span class="text-base font-bold text-purple-700">${studentScore}</span>` : `<span class="text-gray-500">${studentScore}</span>`;
+
+                let comparisonText = '-';
+                if (typeof studentScore === 'number' && stats.avg !== 'N/A') {
+                    const diff = studentScore - stats.avg;
+                    if (diff > 0) {
+                        comparisonText = `<span class="text-green-600 font-medium">▲ ${diff.toFixed(2)}</span>`;
+                    } else if (diff < 0) {
+                        comparisonText = `<span class="text-red-600 font-medium">▼ ${Math.abs(diff).toFixed(2)}</span>`;
+                    } else {
+                        comparisonText = `<span class="text-blue-600 font-medium">▬</span>`;
+                    }
+                }
+
+                const row = `
+                    <tr class="border-b hover:bg-purple-50">
+                        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">${subject.name}</th>
+                        <td class="px-4 py-3 text-center">100</td>
+                        <td class="px-4 py-3 text-center">${studentScoreDisplay}</td>
+                        <td class="px-4 py-3 text-center">${stats.avg}</td>
+                        <td class="px-4 py-3 text-center text-green-600">${stats.max}</td>
+                        <td class="px-4 py-3 text-center text-red-600">${stats.min}</td>
+                        <td class="px-4 py-3 text-center">${comparisonText}</td>
+                    </tr>
+                `;
+                scoreTableBody.innerHTML += row;
+            }
+            renderChart(data, statistics);
+        }
+
+        function renderChart(studentData, statistics) {
+            if (scoreChartInstance) {
+                scoreChartInstance.destroy();
+            }
+            const ctx = chartCanvas.getContext('2d');
+            
+            const labels = Object.values(scoreMapping).map(s => s.name);
+            const studentScores = Object.keys(scoreMapping).map(colIndex => (studentData[colIndex] && typeof studentData[colIndex].v === 'number') ? studentData[colIndex].v : 0);
+            const averageScores = Object.keys(scoreMapping).map(colIndex => statistics[colIndex] ? parseFloat(statistics[colIndex].avg) : 0);
+
+            scoreChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'คะแนนของคุณ',
+                            data: studentScores,
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgba(139, 92, 246, 1)'
+                        },
+                        {
+                            label: 'คะแนนเฉลี่ย',
+                            data: averageScores,
+                            backgroundColor: 'rgba(217, 119, 6, 0.2)', // Dark Yellow
+                            borderColor: 'rgba(217, 119, 6, 1)', // Dark Yellow
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgba(217, 119, 6, 1)' // Dark Yellow
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+        
+        function logout() {
+            loginSection.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+            loginForm.reset();
+            currentStudentId = null;
+            if (scoreChartInstance) {
+                scoreChartInstance.destroy();
+            }
+        }
+
+        function logAccess(studentId) {
+            const script = document.createElement('script');
+            const params = new URLSearchParams({
+                callback: 'handleLogAccessResponse',
+                action: 'logAccess',
+                id: studentId,
+                timestamp: new Date().toISOString()
+            });
+            script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
+            document.head.appendChild(script);
+            script.onload = () => document.head.removeChild(script);
+            script.onerror = () => document.head.removeChild(script);
+        }
+
+        function handleLogAccessResponse(response) {
+            console.log('Log access response:', response);
+            if(response.status === 'success' && response.loginCount) {
+                const countSpan = document.getElementById('login-count');
+                if(countSpan) {
+                    countSpan.textContent = response.loginCount;
+                }
+            }
+        }
+        
+        function handleVisitorCount(response) {
+            if (response && typeof response.visitorCount !== 'undefined') {
+                visitorCountSpan.textContent = response.visitorCount.toLocaleString('th-TH');
+            } else {
+                console.error('Invalid response from visitor count API.');
+                visitorCountSpan.textContent = 'N/A';
+            }
+        }
+
+        function updateVisitorCount() {
+            const script = document.createElement('script');
+            const params = new URLSearchParams({
+                callback: 'handleVisitorCount',
+                action: 'logVisitor'
+            });
+            script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
+            
+            script.onload = () => {
+                if(script.parentNode) script.parentNode.removeChild(script);
+            };
+            script.onerror = () => {
+                console.error('Could not fetch visitor count: Script error.');
+                visitorCountSpan.textContent = 'N/A';
+                if(script.parentNode) script.parentNode.removeChild(script);
+            };
+            document.head.appendChild(script);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateVisitorCount();
+        });
+
+    </script>
+</body>
+</html>
